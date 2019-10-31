@@ -8,8 +8,6 @@
    > 安装其他依赖
 2. brew install toilet
    > 使文档颜色美好
-3. brew install coreutils
-   > 用于查找软连接指向真实文件的绝对路径
 
 ### 功能介绍
 
