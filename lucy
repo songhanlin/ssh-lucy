@@ -1,12 +1,12 @@
 #!/usr/local/bin/bash
 
-filepath=$(greadlink -f $0)
-AUTO_LOGIN_DIR=$(dirname $filepath)
+AUTO_LOGIN_DIR=~/ssh-lucy
 
 function init(){
     if [ -f "${AUTO_LOGIN_DIR}/servers" ];then
         echo "已经初始化过! 无需再次初始化!" && exit 1
     else
+        mkdir ~/ssh-lucy
         touch $AUTO_LOGIN_DIR/servers
         echo "初始化成功! 请加入服务器信息. 🙂" && exit 1
     fi
