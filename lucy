@@ -1,16 +1,19 @@
 #!/usr/local/bin/bash
 
+filepath=$(greadlink -f $0)
+AUTO_LOGIN_DIR=$(dirname $filepath)
+
 function init(){
-    if [ -f "servers" ];then
-        echo "已经初始化过! 无需再次初始化!"
+    if [ -f "${AUTO_LOGIN_DIR}/servers" ];then
+        echo "已经初始化过! 无需再次初始化!" && exit 1
     else
-        touch servers
-        echo "初始化成功! 请加入服务器信息. 🙂"
+        touch $AUTO_LOGIN_DIR/servers
+        echo "初始化成功! 请加入服务器信息. 🙂" && exit 1
     fi
 }
 
 declare -A server_list=()
-AUTO_LOGIN_DIR=.
+
 
 if [ -f "$AUTO_LOGIN_DIR/servers" ];then
     while read ip user password port name ;do
@@ -41,7 +44,7 @@ function listPwd() {
 
 function usage() {
     echo "usage:"
-    echo "ssha [-h] [-l] [-p] [-s <server alias>] [-f <server alias>]"
+    echo "ssha [-h] [-l] [-p] [-f] [-a] [-s <server alias>] [-f <server alias>]"
     exit 0
 }
 
@@ -95,9 +98,13 @@ function add(){
     echo -e "${ip}\t\t${username}\t\t${password}\t\t${port}\t\t${servername}" >> ./servers
 }
 
+function findDir() {
+    echo $AUTO_LOGIN_DIR
+}
+
 # clear screen
 clear
-while getopts hlpais: ARGS  
+while getopts hlpaifs: ARGS  
 do  
 case $ARGS in   
     s)
@@ -108,6 +115,9 @@ case $ARGS in
         ;;
     l)
         list
+        ;;
+    f)
+        findDir
         ;;
     p)
         listPwd
