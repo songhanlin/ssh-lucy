@@ -1,0 +1,125 @@
+#!/usr/local/bin/bash
+
+function init(){
+    if [ -f "servers" ];then
+        echo "已经初始化过! 无需再次初始化!"
+    else
+        touch servers
+        echo "初始化成功! 请加入服务器信息. 🙂"
+    fi
+}
+
+declare -A server_list=()
+AUTO_LOGIN_DIR=.
+
+if [ -f "$AUTO_LOGIN_DIR/servers" ];then
+    while read ip user password port name ;do
+        server_list["${name}"]="${ip} ${user} ${password} ${port}"
+        num=$(($num+1))
+    done < "$AUTO_LOGIN_DIR/servers"  
+else
+    init
+fi
+
+function list() {
+    echo -e "Ip\t\t\tPort\tUser\t\tName"
+    for key in ${!server_list[@]}; do
+        servers=(${server_list[$key]})
+        echo -e "${servers[0]}\t\t${servers[3]}\t${servers[1]}\t\t${key}"| toilet -f term -F border -t --gay
+    done
+    exit 0
+}
+
+function listPwd() {
+    echo -e "Ip\t\t\tPort\tUser\t\tPassword\t\t\tName"
+    for key in ${!server_list[@]}; do
+        servers=(${server_list[$key]})
+        echo -e "${servers[0]}\t\t${servers[3]}\t${servers[1]}\t\t${servers[2]}\t\t\t${key}"| toilet -f term -F border -t --gay
+    done
+    exit 0
+}
+
+function usage() {
+    echo "usage:"
+    echo "ssha [-h] [-l] [-p] [-s <server alias>] [-f <server alias>]"
+    exit 0
+}
+
+function login(){
+    server=(${server_list[$1]})
+    if [ ! $server ]; then
+        echo "找不到服务" && list && exit 1
+    fi
+    echo "$USER logging into the【${server[0]}】 server"| toilet -f term -F border --gay
+
+	command="
+        expect {
+                \"*assword\" {set timeout 6000; send \"${server[2]}\n\"; exp_continue ; sleep 3; }
+                \"*passphrase\" {set timeout 6000; send \"${server[2]}\r\n\"; exp_continue ; sleep 3; }
+                \"yes/no\" {send \"yes\n\"; exp_continue;}
+                \"Last*\" {  send_user \"\nsuccessfully logined 【${server[0]}】\n\";}
+        }
+       interact
+    ";
+   pem=${server[2]}
+   if [ -f "$pem" ]
+   then
+	expect -c "
+		spawn ssh -p ${server[3]} -i ${server[2]} ${server[1]}@${server[0]}
+		${command}
+	"
+   else
+	expect -c "
+		spawn ssh -p ${server[3]} ${server[1]}@${server[0]}
+		${command}
+	"
+   fi
+    echo -e "\t$USER logged out the【${server[0]}】 server\t" | toilet -f term -F border --gay
+}
+
+function add(){
+    read -p "Please enter servername: " servername
+
+    servers=(${server_list[$servername]})
+    if [ $servers ]; then
+        echo "该服务已存在, 请更换服务名称. "
+        echo -e "Ip\t\t\tPort\tUser\t\tName"
+        echo -e "${servers[0]}\t${servers[3]}\t${servers[1]}\t${servername}"| toilet -f term -F border -t --gay && exit 1
+    fi
+
+    read -p "Please enter ip: " ip
+    read -p "Please enter username: " username
+    read -p "Please enter password: " password
+    read -p "Please enter port: " port
+
+    echo -e "${ip}\t\t${username}\t\t${password}\t\t${port}\t\t${servername}" >> ./servers
+}
+
+# clear screen
+clear
+while getopts hlpais: ARGS  
+do  
+case $ARGS in   
+    s)
+        login $OPTARG
+        ;;
+    a)
+        add
+        ;;
+    l)
+        list
+        ;;
+    p)
+        listPwd
+        ;;
+    i)
+        init
+        ;;
+    h)  
+        usage
+        ;;  
+    *)  
+        usage
+        ;;
+esac
+done
