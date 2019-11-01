@@ -40,5 +40,11 @@ lucy -f
 ### 下载方法
 
 ```
-npm install ssh-lucy
+npm install -g ssh-lucy
+```
+
+### 更新方法
+
+```
+npm update ssh-lucy -g
 ```
