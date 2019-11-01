@@ -59,11 +59,12 @@ function login(){
         echo "找不到服务" && list && exit 1
     fi
     echo "$USER logging into the【${server[0]}】 server"| toilet -f term -F border --gay
+    export PASSWORD=${server[2]};
 
 	command="
         expect {
-                \"*assword\" {set timeout 6000; send \"${server[2]}\n\"; exp_continue ; sleep 3; }
-                \"*passphrase\" {set timeout 6000; send \"${server[2]}\r\n\"; exp_continue ; sleep 3; }
+                \"*assword\" {set timeout 6000; send \$env(PASSWORD)\n; exp_continue ; sleep 3; }
+                \"*passphrase\" {set timeout 6000; send \$env(PASSWORD)\r\n\"; exp_continue ; sleep 3; }
                 \"yes/no\" {send \"yes\n\"; exp_continue;}
                 \"Last*\" {  send_user \"\nsuccessfully logined 【${server[0]}】\n\";}
         }
