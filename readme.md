@@ -35,6 +35,9 @@ lucy -a
 // f表示find, 用于查找servers的存放路径, 便于批量插入服务器地址
 lucy -f
 
+// d表示delete, 用于删除不需要的服务器地址
+lucy -d
+
 ```
 
 ### 下载方法

@@ -6,7 +6,9 @@ function init(){
     if [ -f "${AUTO_LOGIN_DIR}/servers" ];then
         echo "已经初始化过! 无需再次初始化!" && exit 1
     else
-        mkdir ~/ssh-lucy
+        if [ ! -d $AUTO_LOGIN_DIR ]; then
+            mkdir ~/ssh-lucy
+        fi
         touch $AUTO_LOGIN_DIR/servers
         echo "初始化成功! 请加入服务器信息. 🙂" && exit 1
     fi
@@ -18,12 +20,12 @@ declare -A server_list=()
 if [ -f "$AUTO_LOGIN_DIR/servers" ];then
     while read ip user password port name ;do
         server_list["${name}"]="${ip} ${user} ${password} ${port}"
-        num=$(($num+1))
     done < "$AUTO_LOGIN_DIR/servers"  
 else
     init
 fi
 
+# 查询列表,不带密码
 function list() {
     echo -e "Ip\t\t\tPort\tUser\t\tName"
     for key in ${!server_list[@]}; do
@@ -33,6 +35,7 @@ function list() {
     exit 0
 }
 
+# 查询列表,带密码
 function listPwd() {
     echo -e "Ip\t\t\tPort\tUser\t\tPassword\t\t\tName"
     for key in ${!server_list[@]}; do
@@ -42,12 +45,14 @@ function listPwd() {
     exit 0
 }
 
+# 展示可用的命令
 function usage() {
     echo "usage:"
     echo "ssha [-h] [-l] [-p] [-f] [-a] [-s <server alias>] [-f <server alias>]"
     exit 0
 }
 
+# 登录服务器
 function login(){
     server=(${server_list[$1]})
     if [ ! $server ]; then
@@ -80,6 +85,7 @@ function login(){
     echo -e "\t$USER logged out the【${server[0]}】 server\t" | toilet -f term -F border --gay
 }
 
+# 添加服务器节点
 function add(){
     read -p "Please enter servername: " servername
 
@@ -98,17 +104,49 @@ function add(){
     echo -e "${ip}\t\t${username}\t\t${password}\t\t${port}\t\t${servername}" >> ./servers
 }
 
+# 查找servers文件目录
 function findDir() {
     echo $AUTO_LOGIN_DIR
 }
 
+# 删除服务器节点
+function delete() {
+    server=(${server_list[$1]})
+    if [ ! $server ]; then
+        echo "删除的节点不存在" && exit 1
+    fi
+    read -p "是否确认删除该服务器节点[$1]: y/n ?" answer
+    if [ $answer = 'y' ]; then
+        echo '确认删除'
+        unset server_list[$1]
+        num=1
+        if [ -f "$AUTO_LOGIN_DIR/servers" ];then
+        while read ip user password port name ;do
+            if [ $name = $1 ]; then
+                break;
+            fi
+            num=$(($num+1))
+        done < "$AUTO_LOGIN_DIR/servers"  
+        fi
+        sed -i -e "$num"d $AUTO_LOGIN_DIR/servers && echo "删除成功~" && exit 1
+    elif [ $answer = 'n' ]; then
+        echo '取消删除'
+    else
+        echo '请输入正确命令: [y/n] '
+    fi
+
+}
+
 # clear screen
 clear
-while getopts hlpaifs: ARGS  
+while getopts hlpaifs:d: ARGS  
 do  
 case $ARGS in   
     s)
         login $OPTARG
+        ;;
+    d)
+        delete $OPTARG
         ;;
     a)
         add
