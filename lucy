@@ -101,7 +101,7 @@ function add(){
     read -p "Please enter password: " password
     read -p "Please enter port: " port
 
-    echo -e "${ip}\t\t${username}\t\t${password}\t\t${port}\t\t${servername}" >> ./servers
+    echo -e "${ip}\t\t${username}\t\t${password}\t\t${port}\t\t${servername}" >> $AUTO_LOGIN_DIR/servers
 }
 
 # 查找servers文件目录

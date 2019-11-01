@@ -6,9 +6,11 @@
 
 1. homebrew
    > 安装其他依赖
-2. brew install toilet
+2. brew install bash
+   > 需要一个新版本的 bash
+3. brew install toilet
    > 使文档颜色美好
-3. node
+4. node
    > 任何版本, 只是为了从仓库去下载我需要的项目, 并且为了让安装命令变的更简洁
 
 ### 功能介绍
