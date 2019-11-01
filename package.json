@@ -1,6 +1,6 @@
 {
   "name": "ssh-lucy",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "一个记录服务器账号密码, 并方便登录的小工具",
   "main": "lucy",
   "bin": {

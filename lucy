@@ -48,7 +48,7 @@ function listPwd() {
 # 展示可用的命令
 function usage() {
     echo "usage:"
-    echo "ssha [-h] [-l] [-p] [-f] [-a] [-s <server alias>] [-f <server alias>]"
+    echo "ssha [-h] [-l] [-p] [-f] [-a] [-s <server alias>] [-d <server alias>]"
     exit 0
 }
 
